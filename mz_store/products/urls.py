@@ -9,6 +9,7 @@ router.register('products', views.ProductViewSet)
 router.register('favorite-products', views.FavoriteProductViewSet)
 router.register('tags', views.ProductTagViewSet)
 router.register('carts', views.CartViewSet)
+router.register("reviews", views.ReviewViewSet)
 
 # Nested router for product images
 product_router = routers.NestedDefaultRouter(router, 'products', lookup='product')

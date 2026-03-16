@@ -1,5 +1,5 @@
 from rest_framework.viewsets import ModelViewSet
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import DjangoFilterBackend, FilterSet, NumberFilter, RangeFilter
 from rest_framework.filters import SearchFilter, OrderingFilter
 
 from .models import (
@@ -22,19 +22,38 @@ from .serializers import (
     CartItemSerializer
 )
 
+class ProductFilter(FilterSet):
+    price_min = NumberFilter(field_name="price", lookup_expr='gte')
+    price_max = NumberFilter(field_name="price", lookup_expr='lte')
+    price_range = RangeFilter(field_name='price')
+
+    class Meta:
+        model = Product
+        fields = ['category', 'price_min', 'price_max', 'price_range']
 
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ["category", "price"]
+    filterset_class = ProductFilter
     search_fields = ["name", "description"]
     ordering_fields = ["price", "created_at"]
 
 
+class ReviewFilter(FilterSet):
+    rating_range = RangeFilter(field_name="rating")
+
+    class Meta:
+        model = Review
+        fields = ["product", "rating_range"]
+
 class ReviewViewSet(ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = ReviewFilter
+    search_fields = ["comment"]
+    ordering_fields = ["rating"]
 
 
 class ProductTagViewSet(ModelViewSet):
