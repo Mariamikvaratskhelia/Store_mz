@@ -28,7 +28,7 @@ class Product(BaseModel):
         Category,
         related_name="products",
         on_delete=models.CASCADE,
-        null=True,  # optional
+        null=True,  
         blank=True
     )
 
