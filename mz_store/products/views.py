@@ -1,6 +1,10 @@
 from rest_framework.viewsets import ModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, NumberFilter, RangeFilter
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle, ScopedRateThrottle
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from .models import (
     Product,
@@ -34,10 +38,12 @@ class ProductFilter(FilterSet):
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    # permission_classes = [isAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = ProductFilter
     search_fields = ["name", "description"]
     ordering_fields = ["price", "created_at"]
+    throttle_classes = [AnonRateThrottle]
 
 
 class ReviewFilter(FilterSet):
@@ -54,6 +60,7 @@ class ReviewViewSet(ModelViewSet):
     filterset_class = ReviewFilter
     search_fields = ["comment"]
     ordering_fields = ["rating"]
+    throttle_classes = [UserRateThrottle]
 
 
 class ProductTagViewSet(ModelViewSet):
@@ -69,13 +76,17 @@ class ProductImageViewSet(ModelViewSet):
 class FavoriteProductViewSet(ModelViewSet):
     queryset = FavoriteProduct.objects.all()
     serializer_class = FavoriteProductSerializer
+    # permission_classes = [IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'likes'
 
 
 class CartViewSet(ModelViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
-
+    throttle_classes = [UserRateThrottle]
 
 class CartItemViewSet(ModelViewSet):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
+    throttle_classes = [UserRateThrottle]
